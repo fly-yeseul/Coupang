@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- xml file 임을 알려주는겅 -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.fly_yeseul.coupang.mappers.IUploadMapper">
+    <insert id="insertFile"
+            parameterType="dev.fly_yeseul.coupang.entities.temp.UploadEntity">
+        INSERT INTO `temp`.`files` (`created_at`, `file_name`, `file_type`, `data`)
+        VALUES (#{createdAt}, #{fileName}, #{fileType}, #{data})
+    </insert>
+
+    <select id="selectFile"
+            resultType="dev.fly_yeseul.coupang.entities.temp.UploadEntity">
+        SELECT `index`      AS `index`,
+               `created_at` AS `createdAt`,
+               `file_name`  AS `fileName`,
+               `file_type`  AS `fileType`,
+               `data`       AS `data`
+        FROM `temp`.`files`
+        WHERE `index` = #{index}
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link th:href="@{/resources/stylesheet/common.css}" rel="stylesheet">
+    <link th:href="@{/resources/user/resources/stylesheets/login.css}" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/e099593f60.js" crossorigin="anonymous"></script>
+    <!--/*@thymesVar id="FAILURE" type="dev.fly_yeseul.coupang.enums.member.user.LoginResult"*/-->
+    <script th:if="${loginVo != null && loginVo.getResult().name().equals('FAILURE')}">
+        alert('아이디 혹은 비밀번호가 일치하지 않습니다.');
+        window.history.back();
+    </script>
+
+    <!--/*@thymesVar id="SUCCESS" type="dev.fly_yeseul.coupang.enums.member.user.LoginResult"*/-->
+    <script th:if="${loginVo != null && loginVo.getResult().name().equals('SUCCESS')}">
+        alert('로그인 성공~');
+        window.location.href = '/';
+    </script>
+    <title>로그인</title>
+
+</head>
+<body>
+<form class="register-form" method="post">
+    <div class="logo-container">
+        <img alt="Coupang" class="logo" th:src="@{https://image7.coupangcdn.com/image/coupang/common/logo_coupang_w350.png}">
+    </div>
+    <label class="input-container">
+        <i class="icon fa-solid fa-envelope"></i>
+        <span hidden>이메일</span>
+        <input class="input" maxlength="50" name="email" placeholder="아이디(이메일)" type="email">
+    </label>
+    <label class="input-container">
+        <i class="icon fa-solid fa-lock"></i>
+        <span hidden>비밀번호</span>
+        <input class="input" maxlength="50" name="password" placeholder="비밀번호" type="password">
+    </label>
+    <div class="sub">
+        <label class="autosign-container">
+            <input class="checkbox" name="autosign" type="checkbox">
+            <span class="checker">
+                <i class="icon fa-solid fa-check"></i>
+            </span>
+            <span class="text">자동로그인</span>
+        </label>
+        <label>
+            <a class="link" th:href="@{/user/recover}">아이디(이메일)/비밀번호 찾기</a>
+        </label>
+    </div>
+    <input class="button login" type="submit" value="로그인">
+    <div class="line"></div>
+    <a class="button register" th:href="@{/user/register}">회원가입</a>
+    <span class="copyright">&copy;Coupang Corp. All rights reserved.</span>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- xml file 임을 알려주는겅 -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dev.fly_yeseul.coupang.mappers.IProductMapper">
+    <delete id="deleteThumbnail"
+            parameterType="dev.fly_yeseul.coupang.entities.product.ThumbnailEntity">
+        DELETE
+        FROM `coupang_product`.`product_thumbnails`
+        WHERE `id` = #{id} LIMIT 1
+    </delete>
+
+    <delete id="deleteProduct"
+            parameterType="dev.fly_yeseul.coupang.entities.product.ProductEntity">
+        DELETE
+        FROM `coupang_product`.`products`
+        WHERE `index` = #{index} LIMIT 1
+    </delete>
+
+    <insert id="insertImage"
+            parameterType="dev.fly_yeseul.coupang.entities.product.ImageEntity">
+        INSERT INTO `coupang_product`.`images` (`id`, `created_at`, `file_name`, `file_type`, `data`)
+        VALUES (#{id}, #{createdAt}, #{fileName}, #{fileType}, #{data})
+    </insert>
+
+    <!--     15-16 상품 상세 페이지  view 하는데 쓸라고 넣는거임 어쨌든 그럼 -->
+    <insert id="insertProduct"
+            useGeneratedKeys="true"
+            keyColumn="index"
+            keyProperty="index"
+            parameterType="dev.fly_yeseul.coupang.entities.product.ProductEntity">
+        INSERT INTO `coupang_product`.`products` (`title`, `price`, `delivery_value`, `content`, `thumbnail_id`)
+        VALUES (#{title}, #{price}, #{deliveryValue}, #{content}, #{thumbnailId})
+    </insert>
+
+    <insert id="insertStock">
+        INSERT INTO `coupang_product`.`product_stocks` (`created_at`, `product_index`, `count`)
+        VALUES (#{createdAt}, #{productIndex}, #{count})
+    </insert>
+
+    <insert id="insertThumbnail"
+            parameterType="dev.fly_yeseul.coupang.entities.product.ThumbnailEntity">
+        INSERT INTO `coupang_product`.`product_thumbnails` (`id`, `data`)
+        VALUES (#{id}, #{data})
+    </insert>
+
+    <select id="selectImage"
+            resultType="dev.fly_yeseul.coupang.entities.product.ImageEntity">
+        SELECT `id`         AS `id`,
+               `created_at` AS `createdAt`,
+               `file_name`  AS `fileName`,
+               `file_type`  AS `fileType`,
+               `data`       AS `data`
+        FROM `coupang_product`.`images`
+        WHERE `id` = #{id} LIMIT 1
+    </select>
+
+    <select id="selectStocks"
+            resultType="dev.fly_yeseul.coupang.entities.product.StockEntity">
+        /* @@@@ 븅신짓 `index` AS 에 `count` 넣음.*/
+        SELECT `index`         AS `index`,
+               `created_at`    AS `createdAt`,
+               `product_index` AS `productIndex`,
+               `count`         AS `count`
+        FROM `coupang_product`.`product_stocks`
+        WHERE `product_index` = #{productIndex}
+        ORDER BY `index` DESC
+            LIMIT #{limit}
+    </select>
+
+    <select id="selectThumbnail"
+            resultType="dev.fly_yeseul.coupang.entities.product.ThumbnailEntity">
+        SELECT `id`   AS `id`,
+               `data` AS `data`
+        FROM `coupang_product`.`product_thumbnails`
+        WHERE `id` = #{id} LIMIT 1
+    </select>
+
+    <select id="selectProductByIndex"
+            resultType="dev.fly_yeseul.coupang.entities.product.ProductEntity">
+        SELECT `index`          AS `index`,
+               `title`          AS `title`,
+               `price`          AS `price`,
+               `delivery_value` AS `deliveryValue`,
+               `content`        AS `content`,
+               `thumbnail_id`   AS `thumbnailId`
+        FROM `coupang_product`.`products`
+        WHERE `index` = #{index} LIMIT 1
+    </select>
+
+    <select id="selectProducts"
+            resultType="dev.fly_yeseul.coupang.dtos.product.ProductDto">
+        SELECT `product`.`index`                                   AS `index`,
+               `product`.`title`                                   AS `title`,
+               `product`.`price`                                   AS `price`,
+               `product`.`delivery_value`                          AS `deliveryValue`,
+               `product`.`content`                                 AS `content`,
+               `product`.`thumbnail_id`                            AS `thumbnailId`,
+               (SELECT SUM(`stock`.`count`)
+                FROM `coupang_product`.`product_stocks` AS `stock`
+                WHERE `product`.`index` = `stock`.`product_index`) AS `count`,
+               COUNT(`review`.`index`)                             AS `reviewCount`,
+               AVG(`review`.`rate`)                                AS `reviewRate`
+        FROM `coupang_product`.`products` AS `product`
+                 LEFT JOIN `coupang_shopping`.`reviews` AS `review` ON `product`.`index` = `review`.`product_index`
+        GROUP BY `product`.`index`
+        ORDER BY `product`.`index` DESC
+    </select>
+
+    <select id="selectProductStock"
+            parameterType="dev.fly_yeseul.coupang.entities.product.ProductEntity"
+            resultType="_int">
+        SELECT IFNULL(SUM(`count`), 0)
+        FROM `coupang_product`.`product_stocks`
+        WHERE `product_index` = #{index}
+    </select>
+
+    <select id="selectProductsByTitle"
+            resultType="dev.fly_yeseul.coupang.dtos.product.ProductDto">
+        SELECT `product`.`index`          AS `index`,
+               `product`.`title`          AS `title`,
+               `product`.`price`          AS `price`,
+               `product`.`delivery_value` AS `deliveryValue`,
+               `product`.`content`        AS `content`,
+               `product`.`thumbnail_id`   AS `thumbnailId`
+        FROM `coupang_product`.`products` AS `product`
+        WHERE `title` LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY `index` DESC
+    </select>
+
+    <update id="updateProduct"
+            parameterType="dev.fly_yeseul.coupang.entities.product.ProductEntity">
+        UPDATE `coupang_product`.`products`
+        SET `title`          = #{title},
+            `price`          = #{price},
+            `delivery_value` = #{deliveryValue},
+            `content`        = #{content},
+            `thumbnail_id`   = #{thumbnailId}
+        WHERE `index` = #{index} LIMIT 1
+
+    </update>
+
+</mapper>
